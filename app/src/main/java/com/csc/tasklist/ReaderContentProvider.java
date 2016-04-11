@@ -1,4 +1,4 @@
-package com.csc.lesson6;
+package com.csc.tasklist;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
@@ -11,7 +11,7 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 
 public class ReaderContentProvider extends ContentProvider {
-    public static final String AUTHORITY = "com.csc.lesson6";
+    public static final String AUTHORITY = "com.csc.tasklist";
     public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY);
 
     public static final int ENTRIES = 1;
@@ -32,8 +32,18 @@ public class ReaderContentProvider extends ContentProvider {
 
     @Override
     public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
-        // Implement this to handle requests to delete one or more rows.
-        throw new UnsupportedOperationException("Not yet implemented");
+        int match = uriMatcher.match(uri);
+        String tableName;
+        switch (match) {
+            case ENTRIES:
+                tableName = FeedsTable.TABLE_NAME;
+                break;
+            default:
+                throw new UnsupportedOperationException("Not yet implemented");
+        }
+        int count = helper.getWritableDatabase().delete(tableName, selection, selectionArgs);
+        getContext().getContentResolver().notifyChange(uri, null);
+        return count;
     }
 
     @Override
@@ -51,7 +61,6 @@ public class ReaderContentProvider extends ContentProvider {
             case ENTRIES:
                 tableName = FeedsTable.TABLE_NAME;
                 break;
-            case ENTRIES_ID:
             default:
                 throw new UnsupportedOperationException("Not yet implemented");
         }
@@ -88,7 +97,17 @@ public class ReaderContentProvider extends ContentProvider {
     @Override
     public int update(@NonNull Uri uri, ContentValues values, String selection,
                       String[] selectionArgs) {
-        // TODO: Implement this to handle requests to update one or more rows.
-        throw new UnsupportedOperationException("Not yet implemented");
+        int match = uriMatcher.match(uri);
+        String tableName;
+        switch (match) {
+            case ENTRIES:
+                tableName = FeedsTable.TABLE_NAME;
+                break;
+            default:
+                throw new UnsupportedOperationException("Not yet implemented");
+        }
+        int count = helper.getWritableDatabase().update(tableName, values, selection, selectionArgs);
+        getContext().getContentResolver().notifyChange(uri, null);
+        return count;
     }
 }
